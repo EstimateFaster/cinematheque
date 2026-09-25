@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#07080d">
+<title>影厅 · Cinematheque</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- 环境光背景（随当前选中影片变色） -->
+<div class="ambient" id="ambient"></div>
+<div class="grain"></div>
+
+<!-- 顶栏 -->
+<header class="topbar" id="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-text">
+      <b>影厅</b>
+      <span id="libStat">媒体库</span>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button class="ic-btn" id="btnSearch" aria-label="搜索">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    </button>
+    <button class="ic-btn" id="btnSort" aria-label="排序">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M6 12h12M9 17h6"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- 搜索层 -->
+<div class="searchbar" id="searchbar">
+  <svg viewBox="0 0 24 24" class="sb-ic"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+  <input id="searchInput" type="search" placeholder="搜索片名 / 文件夹" autocomplete="off">
+  <button class="ic-btn sm" id="btnSearchClose" aria-label="关闭">
+    <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+</div>
+
+<main id="main">
+  <!-- Hero 大图 -->
+  <section class="hero" id="hero">
+    <div class="hero-art" id="heroArt"></div>
+    <div class="hero-shade"></div>
+    <div class="hero-meta">
+      <div class="hero-badges" id="heroBadges"></div>
+      <h1 id="heroTitle">正在载入媒体库…</h1>
+      <p id="heroSub"></p>
+      <div class="hero-btns">
+        <button class="btn-primary" id="heroPlay">
+          <svg viewBox="0 0 24 24" class="fill"><path d="M8 5v14l11-7z"/></svg>
+          <span>立即播放</span>
+        </button>
+        <button class="btn-ghost" id="heroResume">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></svg>
+          <span>从头播放</span>
+        </button>
+      </div>
+    </div>
+    <div class="hero-dots" id="heroDots"></div>
+  </section>
+
+  <!-- 继续观看 -->
+  <section class="rail-wrap" id="railResumeWrap" hidden>
+    <div class="rail-head"><h2>继续观看</h2></div>
+    <div class="rail" id="railResume"></div>
+  </section>
+
+  <!-- 分类栏（按文件夹自动生成） -->
+  <div id="rails"></div>
+
+  <!-- 全部影片 -->
+  <section class="rail-wrap">
+    <div class="rail-head">
+      <h2>全部影片</h2>
+      <span class="count" id="allCount"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <div class="empty" id="empty" hidden>
+    <div class="empty-ic">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>
+    </div>
+    <h3>媒体库是空的</h3>
+    <p>把视频文件放到手机存储任意目录，回到这里下拉即可刷新。</p>
+    <button class="btn-primary" id="btnRescan">重新扫描</button>
+  </div>
+
+  <div class="footer">影厅 v1.0 · 自研 UI · 本地播放</div>
+</main>
+
+<!-- 影片详情弹层 -->
+<div class="sheet-mask" id="sheetMask" hidden></div>
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-grab"></div>
+  <div class="sheet-hero">
+    <div class="sheet-art" id="sheetArt"></div>
+    <div class="sheet-shade"></div>
+    <div class="sheet-head">
+      <h3 id="sheetTitle"></h3>
+      <div class="sheet-meta" id="sheetMeta"></div>
+    </div>
+  </div>
+  <div class="sheet-body">
+    <div class="sheet-path" id="sheetPath"></div>
+    <div class="sheet-btns">
+      <button class="btn-primary wide" id="sheetPlay">
+        <svg viewBox="0 0 24 24" class="fill"><path d="M8 5v14l11-7z"/></svg>
+        <span id="sheetPlayLabel">播放</span>
+      </button>
+      <button class="btn-ghost" id="sheetFav">
+        <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.3A4.2 4.2 0 0 1 12 7a4.2 4.2 0 0 1 7 3.7C19 15.6 12 20 12 20z"/></svg>
+        <span>收藏</span>
+      </button>
+    </div>
+    <div class="progress-line" id="sheetProgress" hidden>
+      <div class="pl-label">上次看到</div>
+      <div class="pl-bar"><i id="sheetProgressBar"></i></div>
+      <div class="pl-time" id="sheetProgressTime"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 自定义播放控制层（原生播放器上层） -->
+<div class="player-ctl" id="playerCtl" hidden>
+  <div class="pc-top">
+    <button class="ic-btn" id="pcBack" aria-label="返回">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="pc-title" id="pcTitle"></div>
+    <button class="ic-btn" id="pcRotate" aria-label="旋转">
+      <svg viewBox="0 0 24 24"><path d="M4 8h11a4 4 0 0 1 0 8H9"/><path d="M7 5L4 8l3 3"/></svg>
+    </button>
+  </div>
+
+  <div class="pc-center">
+    <button class="pc-jump" id="pcBack10">
+      <svg viewBox="0 0 24 24"><path d="M11 12l7-5v10z"/><path d="M6 7v10"/></svg>
+      <em>10</em>
+    </button>
+    <button class="pc-big" id="pcPlay" aria-label="播放/暂停">
+      <svg viewBox="0 0 24 24" class="fill" id="pcPlayIcon"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button class="pc-jump" id="pcFwd10">
+      <svg viewBox="0 0 24 24"><path d="M13 12L6 7v10z"/><path d="M18 7v10"/></svg>
+      <em>10</em>
+    </button>
+  </div>
+
+  <div class="pc-bottom">
+    <div class="pc-scrub" id="pcScrub">
+      <div class="pc-track"><i class="pc-buf" id="pcBuf"></i><i class="pc-play" id="pcFill"></i><b id="pcKnob"></b></div>
+    </div>
+    <div class="pc-row">
+      <span class="pc-time" id="pcTime">00:00 / 00:00</span>
+      <div class="pc-right">
+        <button class="pc-mini" id="pcSpeed">1.0×</button>
+        <button class="pc-mini" id="pcMute" aria-label="静音">
+          <svg viewBox="0 0 24 24"><path d="M5 10v4h3l4 3V7L8 10z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 手势提示 -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

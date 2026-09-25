@@ -1,0 +1,53 @@
+name: Build Cinematheque APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+  release:
+    types: [ created ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build debug keystore
+        run: |
+          set -e
+          keytool -genkeypair -keystore "$RUNNER_TEMP/dsh.keystore" -alias dsh \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass dsh12345 -keypass dsh12345 \
+            -dname "CN=DSH, OU=dev, O=dsh, L=NA, S=NA, C=CN"
+
+      - name: Build APK
+        env:
+          KS_PATH: ${{ runner.temp }}/dsh.keystore
+          KS_PASS: dsh12345
+          ANDROID_SDK: ${{ runner.temp }}/android-sdk
+          OUTPUT_DIR: ${{ github.workspace }}/dist
+        run: bash tools/build.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinematheque-apk
+          path: dist/*.apk
+          if-no-files-found: error
+
+      - name: Attach to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.apk
