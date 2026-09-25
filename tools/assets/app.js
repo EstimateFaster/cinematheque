@@ -396,13 +396,14 @@
   var pcTimer = null;
   function showPlayerOverlay(id) {
     var v = state.all.filter(function (x) { return x.id === id; })[0];
-    $('playerCtl').hidden = false;
-    $('playerCtl').classList.remove('hide');
+    var c = $('playerCtl');
+    c.classList.remove('off');
+    c.classList.remove('hide');
     $('pcTitle').textContent = v ? v.title : '';
     startPcPolling();
   }
   function hidePlayerOverlay() {
-    $('playerCtl').hidden = true;
+    $('playerCtl').classList.add('off');
     stopPcPolling();
   }
 

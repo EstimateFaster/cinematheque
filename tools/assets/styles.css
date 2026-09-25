@@ -24,9 +24,6 @@
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%}
-
-/* hidden 属性必须压过组件自身的 display（否则控制层/弹层会常驻显示） */
-[hidden]{display:none !important}
 body{
   background:var(--bg);
   color:var(--txt);
@@ -282,6 +279,8 @@ main{position:relative;z-index:2;padding-bottom:calc(var(--safe-b) + 28px)}
   background:linear-gradient(180deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,0) 26%,rgba(0,0,0,0) 62%,rgba(0,0,0,.82) 100%);
   transition:opacity .25s ease;
 }
+/* .off 类控制显隐：不依赖 hidden 属性（同优先级下规则顺序会互相覆盖） */
+.player-ctl.off{display:none !important}
 .player-ctl.hide{opacity:0;pointer-events:none}
 .pc-top{
   display:flex;align-items:center;gap:12px;
