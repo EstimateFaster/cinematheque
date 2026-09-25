@@ -127,9 +127,14 @@
   }
 
   /* ---------------- Hero ---------------- */
+  var HERO_MIN_MS = 60000;   // ≥1 分钟才算「影片」，避免秒级录屏占据头图
+
   function buildHero() {
-    var sorted = state.all.slice().sort(function (a, b) { return (b.date || 0) - (a.date || 0); });
-    state.heroList = sorted.slice(0, 5);
+    var byDate = state.all.slice().sort(function (a, b) { return (b.date || 0) - (a.date || 0); });
+    var feature = byDate.filter(function (v) { return (v.dur || 0) >= HERO_MIN_MS; });
+    if (feature.length < 3) feature = byDate.filter(function (v) { return (v.dur || 0) >= 15000; });
+    if (!feature.length) feature = byDate;
+    state.heroList = feature.slice(0, 5);
     var dots = $('heroDots');
     dots.innerHTML = state.heroList.map(function (_, i) {
       return '<i class="' + (i === 0 ? 'on' : '') + '"></i>';
@@ -255,9 +260,12 @@
   }
 
   /* ---------------- 分类栏 ---------------- */
+  var RAIL_MIN_MS = 10000;   // 分类栏只展示 ≥10 秒的条目，过滤系统碎片
+
   function renderRails() {
     var byFolder = {};
     state.all.forEach(function (v) {
+      if ((v.dur || 0) < RAIL_MIN_MS) return;
       (byFolder[v.folder] = byFolder[v.folder] || []).push(v);
     });
     var folders = Object.keys(byFolder).sort(function (a, b) {

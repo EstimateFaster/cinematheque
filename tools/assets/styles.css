@@ -24,6 +24,9 @@
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%}
+
+/* hidden 属性必须压过组件自身的 display（否则控制层/弹层会常驻显示） */
+[hidden]{display:none !important}
 body{
   background:var(--bg);
   color:var(--txt);
@@ -183,8 +186,8 @@ main{position:relative;z-index:2;padding-bottom:calc(var(--safe-b) + 28px)}
   overflow:hidden;background:linear-gradient(135deg,#1a2033,#10141f);
   border:1px solid var(--line);
 }
-.card .thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .35s}
-.card .thumb img.on{opacity:1}
+.card .thumb img{width:100%;height:100%;object-fit:cover;display:none;opacity:0;transition:opacity .35s}
+.card .thumb img.on{display:block;opacity:1}
 .card .thumb .ph{
   position:absolute;inset:0;display:grid;place-items:center;color:var(--txt-mute);
 }
