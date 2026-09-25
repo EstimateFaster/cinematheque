@@ -54,6 +54,7 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:.2px}
 
 /* ---------- 顶栏 ---------- */
 .topbar{
+  background:#ff0033 !important;
   position:sticky;top:0;z-index:30;
   display:flex;align-items:center;justify-content:space-between;
   padding:calc(var(--safe-t) + 12px) 16px 10px;
